@@ -1,51 +1,66 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog.
-#
-# If you need help with YAML syntax, here are some quick references for you:
-# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
-# https://learnxinyminutes.com/docs/yaml/
-#
-#
-# #####################################################
-# template by fast.ai 
-# see here https://github.com/fastai/fast_template.git
-# thx for the great template
-# #####################################################
+title: mncmb.github.io
+author:
+  name: mncmb
+  email: your-email@domain.com
+description: > # this means to ignore newlines until "show_excerpts:"
+  Infosec, malware, robots and monkeys.
 
-# title: 
-# description: 
-# github_username: 
+# Minima date format
+# refer to https://shopify.github.io/liquid/filters/date/ if you want to customize this
+minima:
+  date_format: "%b %-d, %Y"
 
+  # generate social links in footer
+  social_links:
+    twitter: jekyllrb
+    github:  jekyll
+    # devto: jekyll
+    # dribbble: jekyll
+    # facebook: jekyll
+    # flickr:   jekyll
+    # instagram: jekyll
+    # linkedin: jekyll
+    # pinterest: jekyll
+    # youtube: jekyll
+    # youtube_channel: UC8CXR0-3I70i1tfPg1PAE1g
+    # youtube_channel_name: CloudCannon
+    # telegram: jekyll
+    # googleplus: +jekyll
+    # microdotblog: jekyll
+    # keybase: jekyll
 
-# Email and twitter are optional:
-email:
-twitter_username:
+    # Mastodon instances
+    # mastodon:
+    # - username: jekyll
+    #   instance: example.com
+    # - username: jekyll2
+    #   instance: example.com
 
-# Set this to true to get LaTeX math equation support
-use_math:
+    # GitLab instances
+    # gitlab:
+    # - username: jekyll
+    #   instance: example.com
+    # - username: jekyll2
+    #   instance: example.com
 
-# Add your Google Analytics ID here if you have one and want to use it
-google_analytics:
+# If you want to link only specific pages in your header, uncomment
+# this and add the path to the pages in order as they should show up
+#header_pages:
+# - about.md
 
-# Everything below here can be ignored, unless you want to change the theme entirely
+# Build settings
 theme: minima
+
 plugins:
-  - jekyll-feed
-  - jekyll-gist
-  - jekyll-octicons
-  - jekyll-github-metadata
+ - jekyll-feed
+ - jekyll-seo-tag
 
-titles_from_headings:
-  enabled:     true
-  strip_title: true
-  collections: true
 
-highlighter: rouge
-markdown: kramdown
-kramdown:
-  math_engine: katex
-  input: GFM
-  auto_ids: true
-  hard_wrap: false
-  syntax_highlighter: rouge
+show_excerpts: true # set to true to show excerpts on the homepage
+minima:
+  skin: classic
+header_pages:
+  - about.md
+
+# see also modifications in
+# _sass/minima/custom-styles.scss

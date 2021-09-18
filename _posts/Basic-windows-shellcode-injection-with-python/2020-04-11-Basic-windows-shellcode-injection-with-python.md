@@ -16,7 +16,9 @@ This post is about calling Windows API functions from python and performing basi
 
 Turns out you can achieve the same in C/C++ with less code and issues because there are plenty of examples on how to do simple code injection with VirtualAllocEx and CreateRemoteThread out there. Some of the problems encountered have to do with how `ctypes`, the python library for foreign function calls, interacts with Windows DLLs, especially the types it uses by default, changes throughout the versions of `ctypes` and differences between 32 and 64 bit programs. 
 
-Still, if you are not too familiar with the subject this can serve as an introduction into process injection, as well as gaining some familiarity with the Windows API. Also this post presents solutions to problems with 64bit shellcode injection utilizing python ctypes.
+Still, if you are not too familiar with the subject this can serve as an introduction into process injection, as well as gaining some familiarity with the Windows API. Also this post discusses some issue encountered with 64bit shellcode injection utilizing python ctypes and their workarounds/solutions.
+
+- [ ] TODO: Code can be found [here](http://link)
 
 ## Code injection basics
 The basic pattern for code injection consists of four steps:

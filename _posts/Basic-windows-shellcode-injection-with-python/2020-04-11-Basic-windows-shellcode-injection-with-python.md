@@ -11,7 +11,7 @@ tag:
 --- 
 
 <figure>
-<img src="/Basic-windows-shellcode-injection-with-python/paul-earle-xJ2tjuUHD9M-unsplash.jpg">
+<img src="https://github.com/mncmb/mncmb.github.io/tree/master/_posts/Basic-windows-shellcode-injection-with-python/paul-earle-xJ2tjuUHD9M-unsplash.jpg">
 <figcaption>image by paul earle</figcaption>
 </figure>
 
@@ -37,7 +37,7 @@ This holds true for code injection. Another very common basic technique is DLL i
 A more detailled overview of general process injection can be seen in the following figure. The shown steps are discussed below.
 
 <figure>
-<img src="/Basic-windows-shellcode-injection-with-python/process_injection_overview.png" alt="four steps of process injection">
+<img src="https://github.com/mncmb/mncmb.github.io/tree/master/_posts/Basic-windows-shellcode-injection-with-python/process_injection_overview.png" alt="four steps of process injection">
 <figcaption>Process injection overview</figcaption>
 </figure>
 
@@ -143,7 +143,7 @@ The above output shows `arg_address` as a negative value. Since this is the loca
 When looking for the newly created page in memory, it can be quickly found by searching for pages with read/write/execute permissions or `ERW` with a debugger like x64dbg or something like Process Hacker. Since this permission is uncommon for normal operations you can spot a page pretty easy through this. Atleast as long as you are not altering the protection status for camouflage ([VirtualProtect function](https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect)).
 
 <figure>
-<img src="/Basic-windows-shellcode-injection-with-python/finding_virtualallocex.png" alt="Inspecting the allocated page">
+<img src="https://github.com/mncmb/mncmb.github.io/tree/master/_posts/Basic-windows-shellcode-injection-with-python/finding_virtualallocex.png" alt="Inspecting the allocated page">
 <figcaption>Inspecting the allocated page</figcaption>
 </figure>
 

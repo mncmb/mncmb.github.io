@@ -10,6 +10,11 @@ tag:
   - code injection
 --- 
 
+<figure>
+<img src="/Basic-windows-shellcode-injection-with-python/paul-earle-xJ2tjuUHD9M-unsplash.jpg">
+<figcaption>image by paul earle</figcaption>
+</figure>
+
 ## intro
 
 This post is about calling Windows API functions from python and performing basic shellcode injection using VirtualAllocEx and CreateRemoteThread.
@@ -18,7 +23,7 @@ Turns out you can achieve the same in C/C++ with less code and issues because th
 
 Still, if you are not too familiar with the subject this can serve as an introduction into process injection, as well as gaining some familiarity with the Windows API. Also this post discusses some issue encountered with 64bit shellcode injection utilizing python ctypes and their workarounds/solutions.
 
-- [ ] TODO: Code can be found [here](http://link)
+Code can be found [here](https://github.com/mncmb/shellcode_runner/tree/master/pyci)
 
 ## Code injection basics
 The basic pattern for code injection consists of four steps:
@@ -215,6 +220,6 @@ kernel32.CreateRemoteThread.argtypes = [c_void_p, c_void_p, c_size_t, c_void_p, 
 
 ----------
 ## Sources:
-https://www.andreafortuna.org/2018/08/06/code-injection-on-windows-using-python-a-simple-example/
-https://gist.github.com/fdiskyou/557bf139ceb5c1b95b9eb4cb5d9167d2
-https://docs.microsoft.com/en-us/windows/win32/secauthz/mandatory-integrity-control
+- https://www.andreafortuna.org/2018/08/06/code-injection-on-windows-using-python-a-simple-example/
+- https://gist.github.com/fdiskyou/557bf139ceb5c1b95b9eb4cb5d9167d2
+- https://docs.microsoft.com/en-us/windows/win32/secauthz/mandatory-integrity-control

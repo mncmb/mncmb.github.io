@@ -10,6 +10,11 @@ tag:
   - dll injection
 --- 
 
+<figure>
+<img src="/Inline-hooking-via-injected-DLL/tim-marshall-iBY2XCgPwDA-unsplash.jpg">
+<figcaption>image by tim marshall</figcaption>
+</figure>
+
 ## intro
 
 I've recently completed reenz0h's / sektor7 `Red Team Operator: Essentials` course and became interested in hooking techniques prior to it. So with some more knowledge on my hands I wanted to implement some kind of inline hook. 
@@ -21,7 +26,7 @@ For more details on IAT hooks and a nice graph see [here](https://www.ired.team/
 
 This post is about inline hooks and modifying existing functions though and that is what we are going to do. 
 
-__TODO__ The code can be found [here](http://link).
+The code used throughout this post can be found [here](https://github.com/mncmb/shellcode_runner/tree/master/inline_hooking).
 
 
 ## overview
@@ -37,18 +42,19 @@ A Windows VM with some development tools is needed. I recommend installing choco
 ```
 choco install -y 7zip firefox hxd vscode visualstudio2019-workload-nativedesktop x64dbg.portable git
 ```
-
 If you prefer a GUI you might also install `visualstudio2019community`. 
 
+The build tools that are invoked in the accompanying builder bat scripts are available via the `native developer tool` command prompt / environment. You can find it by pressing start/ win-key and searching for it. I recommend pinning it to the task menu.
+
 ### choosing a windows API function
-When your first thought is about picking some networking APIs, hooking them and intercepting and possibly redirecting packets containing a magic header to build a super stealthy user land trojan: Don't.
-I have considerably down sized this project during it's course because I wanted to finish the primary task (inline hooking) instead of starting a longer dive into some serious research. While that intro statement certainly would be a cool project, time constraints are real and there is just so much to learn and an abundance of other interesting topics.
+When your first thought is about picking some networking APIs, hooking them and intercepting and possibly redirecting packets containing a magic header to build a super stealthy user land trojan then you might want to reconsider.
+I have considerably down sized this project during it's course because I wanted to finish the primary task (inline hooking) instead of starting a longer dive into the necessary research. While that intro statement certainly would be a cool project, time constraints are real and there is just so much to learn and an abundance of other interesting topics so that I chose to keep the scope small.
 
 This led me to selecting a very simple API that was a perfect fit for getting acquainted with the subject. 
 
 May I present to you [OutputDebugStringW](https://docs.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-outputdebugstringw).
-If you look into Malware Reversing (or the other side of the fence) you might have heard of this function as a simple way of checking for the presence of a debugger - atleast prior to Windows Vista as the [checkpoint research](https://anti-debug.checkpoint.com/techniques/interactive.html#outputdebugstring) points out.
-For this exercise it is a perfect fit. Normally it would print it's output to a debugger but not to the standard output. We will alter the function to do so by hooking it and intercepting the input argument.
+If you look into Malware Reversing (or the other side of the fence) you might have heard of this function as a simple way of checking for the presence of a debugger - atleast prior to Windows Vista as this [checkpoint article ](https://anti-debug.checkpoint.com/techniques/interactive.html#outputdebugstring) on the subject points out.
+For this exercise it is a perfect fit. Normally it would print it's output to a debugger but not to the standard output. We will modify the function so that it prints to stdout by hooking it and intercepting the input argument.
 
 
 #### test program
@@ -71,7 +77,7 @@ void main(){
     OutputDebugStringA(supersecret);
 }
 ```
-It consists of a super secret string which gets printed via OutputDebugString and is therefor only visible through an attached debugger. 
+It contains a secret string which gets printed via OutputDebugString and is therefor only visible if a debugger is attached. 
 In order to easily step through the program, we use getchar() as a marker and cheap pseudo breakpoint.
 
 ### the injector
@@ -94,14 +100,16 @@ In the next function call, the full path to the injected DLL is written to the n
 
 Afterwards, a new thread is started. This thread calls the LoadLibrary function with a pointer to the full DLL path as it's argument. The LoadLibrary function was dynamically resolved prior to the above process, which is why it is submitted as an argument to the CreateRemoteThread function (`pLoadLibrary`). 
 
+So to sum up the injection process, a new thread is started with the instruction pointer set to the `LoadLibrary` function and the DLL name as an argument to the function.
+
 ### hook DLL
 
-For the hook, the following needs to get accomplished:
+For the hook, the following needs to be done:
 1. the address of the to-be-hooked function has to be resolved
 2. the replacing function has to be defined
 3. a redirection to the replacing function has to be installed on the to-be-hooked function
 
-__Resolving__ the to-be-hooked function can be done via:
+__Resolving__ the to-be-hooked function can be resolved via `GetProcAddress`:
 ```c
 // get Address of OutputDebugStringA function
 funcAdress = (void*)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "OutputDebugStringA");
@@ -125,32 +133,38 @@ memcpy_s(patch+11, 1, "\xc3",1); // ret
 The patch puts the location of the replacing function (_HookOutputDebugStringA_) in register RAX, pushes the contents of RAX on the stack and then essentially performs a jump to the address pointed to by RAX via `ret` instruction. 
 
 The patch was adapted from the [windows API hooking](https://ired.team/offensive-security/code-injection-process-injection/how-to-hook-windows-api-using-c++) example to 64bit.
-The main difference between 32bit and 64bit patches lies within jumps to code locations that should get executed. Jumps only allow to specify 32bit values as a relative address to jump to. This means the different code locations might only be 2GB apart. So in order to jump to code that is further apart, other instructions have to be useed. 
+The main difference between 32bit and 64bit patches lies within jumps to code locations that should get executed. The jump instruction from the original code only allows to specify 32bit values as a relative address to jump to. This means the different code locations might only be 2GB apart. So in order to jump to code that is further apart, other instructions have to be used. 
 
 A pretty neat discussion of different `trampoline` instruction sequences can be found at the [ragestorm blog](https://www.ragestorm.net/blogs/?p=107) and [this stackoverflow question](https://stackoverflow.com/questions/16917643/how-to-push-a-64bit-int-in-nasm).
 
 As for arguments, the first is passed in `ECX`. `ECX` is the first argument for all common windows calling conventions, be it 32 or 64 bit. See `ECX` contents in the following image being __secret 123412__.
 
-![](/assets/images/winhook/failedSimpleProg_OutputDebugString_JumpTable.png) 
+<figure>
+<img src="/Inline-hooking-via-injected-DLL/failedSimpleProg_OutputDebugString_JumpTable.png">
+<figcaption>ECX contents prior to OutputDebugString call</figcaption>
+</figure>
 
 
 #### debugging injected DLLs
 
-Because it is nice to debug code in one way or another, I looked up different debugging options for injected DLLs. Two things came up, first the nice and clean way aaand ... good old dirty printf debugging.   
+Because it is nice to debug code in one way or another, I looked up different debugging options for injected DLLs. Two things came up, first the nice and clean way and good old dirty printf debugging.   
 Obviously I picked the latter.  
 Nonetheless having other options is always nice so I will keep information on both options here.
 
-__Visual Studio injected DLL debugging__  
-It is actually pretty easy to debug an injected DLL with Visual Studio. You just need to open a DLL project, build your DLL and attach VS to the process you want to inject the DLL into. Then comes the injection - nothing fancy is required, a basic DLL injection works fine - and thats it.
+##### Visual Studio injected DLL debugging
+It is actually pretty easy to debug an injected DLL with Visual Studio. You just need to open a DLL project, build your DLL and attach VS to the process you want to inject the DLL into. Then comes the injection and thats it.
 
-![](/assets/images/winhook/dll_debug_attach_to_process.png)
+<figure>
+<img src="/Inline-hooking-via-injected-DLL/dll_debug_attach_to_process.png">
+<figcaption>Visualstudio debugger attach to process</figcaption>
+</figure>
 
-The information was found on the Game Hacking forums ([VS debugging of DLL](https://guidedhacking.com/threads/debugging-dll-for-internal-hack.7760/)). 
+For more information on this see ([Game Hacking forums](https://guidedhacking.com/threads/debugging-dll-for-internal-hack.7760/)).
 
-__print Debugging of DLL code__  
-The second way was actually more interesting for me because it worked by creating a console window and directing standard input, output and error towards it. This came really handy since I was already wondering what is necessary to redirect output (eg printf) from DLL code to a console window. This didn't solve the the issue but is a nice hack around it ([GetStdHandle](https://docs.microsoft.com/en-us/windows/console/getstdhandle) function maybe?!).
+##### print Debugging of DLL code
+The printf debugging works by creating a console window and directing standard input, output and error towards it. This comes really handy since It allows to output debug information in an extra window. Keep in mind though that this does not redirect output to an already existing window but creates one of it's own. So if you want to use printf from a DLL to generate output among that of the acutal executable this is not the way (maybe [GetStdHandle](https://docs.microsoft.com/en-us/windows/console/getstdhandle)can help though?).
 
-So in order to get output of the DLL, the following code has to be included:
+In order to get the output of the DLL, the following code has to be included:
 
 ```c
     AllocConsole();
@@ -162,37 +176,20 @@ So in order to get output of the DLL, the following code has to be included:
 
 The functions are pretty self explanatory by name or input. Now we can debug and easily analyze the exe or dll with x64dbg and `printf` and `getchar`.
 
-The technique / code was taken from this post [printf for dll debugging](https://www.codeproject.com/Tips/227809/Good-Old-Dirty-printf-Debugging-in-a-Non-console-C).
+The code was taken from this post [printf for dll debugging](https://www.codeproject.com/Tips/227809/Good-Old-Dirty-printf-Debugging-in-a-Non-console-C).
 
 
 #### compiling the DLL
-`cl.exe /O2 /D_USRDLL /D_WINDLL hook.c /MT /link /DLL /OUT:Hook.dll`
+As for compiling the DLL the following flags are used for cl: `cl.exe /O2 /D_USRDLL /D_WINDLL hook.c /MT /link /DLL /OUT:Hook.dll`.
+As can be gathered from the [microsoft documentation](https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options?view=msvc-160)on [compiler options](https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically?view=msvc-160), `O2` creates fast code, `D_USERDLL`, `/MT` creates a multi threaded executable and includes LIBCMT.lib, `/link` passes the options following the flag to the linker and `/DLL` is the linker option to create a DLL. The `_USRDLL` and `_WINDLL` parameters seem to be necessary [preprocessor define options](https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa235516(v=vs.60)?redirectedfrom=MSDN)
 
-Alternatively, as described [here](https://stackoverflow.com/questions/1130479/how-to-build-a-dll-from-the-command-line-in-windows-using-msvc), the same can be achieved with just `cl /LD <files>`
-
+Alternatively, as described [here](https://stackoverflow.com/questions/1130479/how-to-build-a-dll-from-the-command-line-in-windows-using-msvc), the same can be achieved with just `cl /LD <files>`.
 
 ## Wrapping up
 
-
-![](/assets/images/winhook/hook.gif)
+<figure>
+<img src="/Inline-hooking-via-injected-DLL/hook.gif">
+<figcaption>Applying the hook</figcaption>
+</figure>
 
 As you can see in the above gif, executing the program in powershell doesn't give any output. After hooking the function and redirecting the `OutputDebugString` arg into printf, the secret is revealed.
-
-
-
-### Outlook: Unknown functions, tracing, shellcode
-
-Consider the following example: You are trying to alter the behaviour of an application. In order to do so, you need to understand how the application works and which functions it is calling. To pinpoint the specific changes you have to deploy, you need to pinpoint the function(s) that is responsible. 
-
-One way of doing so could be via tracing. Creating a trace means that you will observe the application during a There are different tools and possibilities of creating an API call trace during a time frame where you can trigger
-When trying to determine the target function 
-The reason I switched to another method is because I tried to do a call trace on `notepad.exe` with x64dbg, but the trace condition wasn't accepted (`dis.iscall(cip)`). I later found out, that you simply have to pause the program before you can do any tracing... 
-
-Information on tracing can also be found in the [x64dbg documentation](https://help.x64dbg.com/en/latest/introduction/ConditionalTracing.html) and here [logging calls and jumps](https://forum.tuts4you.com/topic/40049-problems-logging-all-jumpscalls/).
-
-=============
-Also, when starting the _threaded shellcode_ dll through rundll32.exe, the code has to have either an endless loop or a sleep after the `CreateThread` call. If this is not in place, the DLL function seems to exit and kills the process while the meterpreter reverse shell hasn't even been established. Another option is simply calling a non existing method. This pops up an error _MessageBox_ that keeps the process alive. Obviously this is only an option while testing.
-
-![](/assets/images/winhook/2020.06.11-22.34_1.gif)
-
-I believe this an issue of the specific shellcode in use. Not sure exactly why it behaves like it does but might just be the main thread exiting and not waiting for the meterpreter thread.

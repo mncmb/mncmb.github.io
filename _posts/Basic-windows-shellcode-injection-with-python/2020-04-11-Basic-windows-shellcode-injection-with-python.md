@@ -143,7 +143,7 @@ The above output shows `arg_address` as a negative value. Since this is the loca
 When looking for the newly created page in memory, it can be quickly found by searching for pages with read/write/execute permissions or `ERW` with a debugger like x64dbg or something like Process Hacker. Since this permission is uncommon for normal operations you can spot a page pretty easy through this. Atleast as long as you are not altering the protection status for camouflage ([VirtualProtect function](https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect)).
 
 <figure>
-<img src="/mncmb.github.io/_posts/Basic-windows-shellcode-injection-with-python/finding_virtualallocex.png" alt="Inspecting the allocated page">
+<img src="finding_virtualallocex.png" alt="Inspecting the allocated page">
 <figcaption>Inspecting the allocated page</figcaption>
 </figure>
 

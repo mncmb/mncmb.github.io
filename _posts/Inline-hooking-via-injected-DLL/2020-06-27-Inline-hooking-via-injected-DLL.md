@@ -11,7 +11,7 @@ tag:
 --- 
 
 <figure>
-<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/_posts/Inline-hooking-via-injected-DLL/tim-marshall-iBY2XCgPwDA-unsplash.jpg">
+<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/master/_posts/Inline-hooking-via-injected-DLL/tim-marshall-iBY2XCgPwDA-unsplash.jpg">
 <figcaption>image by tim marshall</figcaption>
 </figure>
 
@@ -140,7 +140,7 @@ A pretty neat discussion of different `trampoline` instruction sequences can be 
 As for arguments, the first is passed in `ECX`. `ECX` is the first argument for all common windows calling conventions, be it 32 or 64 bit. See `ECX` contents in the following image being __secret 123412__.
 
 <figure>
-<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/_posts/Inline-hooking-via-injected-DLL/failedSimpleProg_OutputDebugString_JumpTable.png">
+<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/master/_posts/Inline-hooking-via-injected-DLL/failedSimpleProg_OutputDebugString_JumpTable.png">
 <figcaption>ECX contents prior to OutputDebugString call</figcaption>
 </figure>
 
@@ -155,7 +155,7 @@ Nonetheless having other options is always nice so I will keep information on bo
 It is actually pretty easy to debug an injected DLL with Visual Studio. You just need to open a DLL project, build your DLL and attach VS to the process you want to inject the DLL into. Then comes the injection and thats it.
 
 <figure>
-<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/_posts/Inline-hooking-via-injected-DLL/dll_debug_attach_to_process.png">
+<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/master/_posts/Inline-hooking-via-injected-DLL/dll_debug_attach_to_process.png">
 <figcaption>Visualstudio debugger attach to process</figcaption>
 </figure>
 
@@ -188,7 +188,7 @@ Alternatively, as described [here](https://stackoverflow.com/questions/1130479/h
 ## Wrapping up
 
 <figure>
-<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/_posts/Inline-hooking-via-injected-DLL/hook.gif">
+<img src="https://raw.githubusercontent.com/mncmb/mncmb.github.io/master/_posts/Inline-hooking-via-injected-DLL/hook.gif">
 <figcaption>Applying the hook</figcaption>
 </figure>
 

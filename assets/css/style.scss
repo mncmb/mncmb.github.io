@@ -2,3 +2,7 @@
 ---
 
 @import "main";
+
+body[data-theme="dark"] code.highlighter-rouge {
+    color: goldenrod;
+  }
